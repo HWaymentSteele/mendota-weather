@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0d1117">
+<meta name="theme-color" content="#fdf6e3">
 <title>Wind Dashboard — Lake Mendota</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -13,17 +13,17 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --surface2: #1c2230;
-    --border: #2a3347;
-    --accent: #e8a020;
-    --accent2: #5b9cf6;
-    --text: #e6edf3;
-    --muted: #8b949e;
-    --wind-low: #4cc9a0;
-    --wind-med: #f0a500;
-    --wind-high: #e05252;
+    --bg: #fdf6e3;
+    --surface: #eee8d5;
+    --surface2: #e4ddc8;
+    --border: #cec8b0;
+    --accent: #b8960c;
+    --accent2: #4e7d2e;
+    --text: #3a4048;
+    --muted: #8a9099;
+    --wind-low: #4e7d2e;
+    --wind-med: #b8960c;
+    --wind-high: #b84c1a;
   }
 
   body {
@@ -63,7 +63,7 @@
 
   .fetch-btn {
     background: var(--accent);
-    color: #000;
+    color: #fff;
     border: none;
     padding: 8px 16px;
     border-radius: 6px;
@@ -270,7 +270,7 @@
   }
   .tab.active {
     background: var(--accent);
-    color: #000;
+    color: #fff;
     border-color: var(--accent);
     font-weight: 700;
   }
@@ -300,7 +300,7 @@
 <header>
   <div>
     <div class="site-title">Wind Dashboard</div>
-    <div class="site-loc">Lake Mendota</div>
+    <div class="site-loc">Lake Mendota, WI</div>
   </div>
   <button class="fetch-btn" id="fetchBtn" onclick="fetchData()">↻ FETCH</button>
 </header>
@@ -368,16 +368,32 @@
   }
 
   // ── Helpers ───────────────────────────────────────────────
-  function windColor(spd) {
-    if (spd < 10) return 'var(--wind-low)';
-    if (spd < 20) return 'var(--wind-med)';
-    return 'var(--wind-high)';
+  // Hannah's Heuristic: rowability depends on wind direction
+  // Zone 1 — W through N (258.75°→11.25°): <5 green, ≥5 red
+  // Zone 3 — NNE through ENE (11.25°→78.75°): <5 green, 5–10 amber, ≥10 red
+  // Zone 2 — E through WSW (78.75°→258.75°): <10 green, 10–15 amber, ≥15 red
+  function getZone(dir) {
+    const d = ((dir % 360) + 360) % 360;
+    if (d >= 258.75 || d < 11.25) return 1;
+    if (d >= 11.25  && d < 78.75) return 3;
+    return 2;
   }
 
-  function windClass(spd) {
-    if (spd < 10) return 'wind-color-low';
-    if (spd < 20) return 'wind-color-med';
-    return 'wind-color-high';
+  function windStatus(spd, dir) {
+    const zone = getZone(dir === undefined ? 180 : dir);
+    if (zone === 1) return spd < 5  ? 'green' : 'red';
+    if (zone === 3) return spd < 5  ? 'green' : spd < 10 ? 'amber' : 'red';
+    return              spd < 10 ? 'green' : spd < 15 ? 'amber' : 'red';
+  }
+
+  function windColor(spd, dir) {
+    const s = windStatus(spd, dir === undefined ? 180 : dir);
+    return s === 'green' ? 'var(--wind-low)' : s === 'amber' ? 'var(--wind-med)' : 'var(--wind-high)';
+  }
+
+  function windClass(spd, dir) {
+    const s = windStatus(spd, dir === undefined ? 180 : dir);
+    return s === 'green' ? 'wind-color-low' : s === 'amber' ? 'wind-color-med' : 'wind-color-high';
   }
 
   function dirLabel(deg) {
@@ -483,7 +499,7 @@
       <div class="wind-big">
         ${compassSVG(dir)}
         <div class="wind-info">
-          <div class="wind-speed-big" style="color:${windColor(spd)}">${spd} <span style="font-size:14px;color:var(--muted)">mph</span></div>
+          <div class="wind-speed-big" style="color:${windColor(spd,dir)}">${spd} <span style="font-size:14px;color:var(--muted)">mph</span></div>
           <div class="wind-dir-text">From ${dirLabel(dir)} (${dir}°)</div>
           ${gust > spd ? `<div class="wind-gust">Gusting to ${gust} mph</div>` : ''}
         </div>
@@ -531,7 +547,8 @@
       return `<div class="hour-cell" style="${isPast ? 'opacity:0.4' : ''}">
         <div class="hour-time">${fmt12(h.datetime)}</div>
         <div style="margin:0 auto 5px;display:flex;justify-content:center">${dirArrowSVG(dir)}</div>
-        <div class="hour-speed" style="color:${windColor(spd)}">${spd}</div>
+        <div class="hour-speed" style="color:${windColor(spd,dir)}">${spd}</div>
+        ${h.windgust && Math.round(h.windgust) > spd ? `<div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--wind-high)">G${Math.round(h.windgust)}</div>` : '<div style="font-size:10px;color:transparent">G0</div>'}
         <div class="hour-temp">${Math.round(h.temp || 0)}°</div>
       </div>`;
     }).join('');
@@ -565,7 +582,7 @@
           <div style="font-size:12px;color:var(--muted);margin-top:2px">${s.conditions || ''}</div>
         </div>
         <div class="history-vals">
-          <div style="color:${windColor(spd)}">${spd} mph ${dirLabel(s.winddir || 0)}</div>
+          <div style="color:${windColor(spd, s.winddir || 0)}">${spd} mph ${dirLabel(s.winddir || 0)}</div>
           <div style="color:var(--muted);font-size:10px">${Math.round(s.temp || 0)}°F · ${Math.round(s.humidity || 0)}% RH</div>
         </div>
       </div>`;
@@ -582,8 +599,133 @@
     });
   }
 
-  // Init
+  // ── Compass Rose (Hannah's Rule) ──────────────────────────
+  function drawRose() {
+    const svg = document.getElementById('rosesvg');
+    const cx = 80, cy = 80, r = 62, ri = 18;
+    const ns = 'http://www.w3.org/2000/svg';
+
+    function polar(angleDeg, radius) {
+      // SVG: 0° = top (North), clockwise
+      const rad = (angleDeg - 90) * Math.PI / 180;
+      return [cx + radius * Math.cos(rad), cy + radius * Math.sin(rad)];
+    }
+
+    function arcPath(startDeg, endDeg, outerR, innerR) {
+      const [x1, y1] = polar(startDeg, outerR);
+      const [x2, y2] = polar(endDeg,   outerR);
+      const [x3, y3] = polar(endDeg,   innerR);
+      const [x4, y4] = polar(startDeg, innerR);
+      const sweep = ((endDeg - startDeg) + 360) % 360;
+      const large = sweep > 180 ? 1 : 0;
+      return `M${x1},${y1} A${outerR},${outerR} 0 ${large},1 ${x2},${y2} L${x3},${y3} A${innerR},${innerR} 0 ${large},0 ${x4},${y4} Z`;
+    }
+
+    const zones = [
+      { start: 258.75, end: 11.25,  color: '#b84c1a', alpha: '33', label: '≥5⚑', midAngle: 315  },
+      { start: 11.25,  end: 78.75,  color: '#b8960c', alpha: '33', label: '≥5⚠', midAngle: 45   },
+      { start: 78.75,  end: 258.75, color: '#4e7d2e', alpha: '33', label: '≥10✓', midAngle: 168 },
+    ];
+
+    zones.forEach(z => {
+      const path = document.createElementNS(ns, 'path');
+      path.setAttribute('d', arcPath(z.start, z.end, r, ri));
+      path.setAttribute('fill', z.color + z.alpha);
+      path.setAttribute('stroke', z.color);
+      path.setAttribute('stroke-width', '1.2');
+      svg.appendChild(path);
+
+      // Label at midpoint
+      const [lx, ly] = polar(z.midAngle, (r + ri) / 2);
+      const txt = document.createElementNS(ns, 'text');
+      txt.setAttribute('x', lx);
+      txt.setAttribute('y', ly + 3);
+      txt.setAttribute('text-anchor', 'middle');
+      txt.setAttribute('font-family', 'Space Mono, monospace');
+      txt.setAttribute('font-size', '7');
+      txt.setAttribute('fill', z.color);
+      txt.setAttribute('font-weight', '700');
+      txt.textContent = z.label;
+      svg.appendChild(txt);
+    });
+
+    // Outer ring
+    const ring = document.createElementNS(ns, 'circle');
+    ring.setAttribute('cx', cx); ring.setAttribute('cy', cy);
+    ring.setAttribute('r', r);
+    ring.setAttribute('fill', 'none');
+    ring.setAttribute('stroke', 'var(--border)');
+    ring.setAttribute('stroke-width', '1');
+    svg.appendChild(ring);
+
+    // Cardinal labels
+    [['N',0],['E',90],['S',180],['W',270]].forEach(([lbl, deg]) => {
+      const [x, y] = polar(deg, r + 9);
+      const t = document.createElementNS(ns, 'text');
+      t.setAttribute('x', x); t.setAttribute('y', y + 3);
+      t.setAttribute('text-anchor', 'middle');
+      t.setAttribute('font-family', 'Space Mono, monospace');
+      t.setAttribute('font-size', '9');
+      t.setAttribute('font-weight', '700');
+      t.setAttribute('fill', 'var(--text)');
+      t.textContent = lbl;
+      svg.appendChild(t);
+    });
+
+    // Center hub
+    const hub = document.createElementNS(ns, 'circle');
+    hub.setAttribute('cx', cx); hub.setAttribute('cy', cy);
+    hub.setAttribute('r', 4);
+    hub.setAttribute('fill', 'var(--surface2)');
+    hub.setAttribute('stroke', 'var(--border)');
+    hub.setAttribute('stroke-width', '1.2');
+    svg.appendChild(hub);
+  }
+
+  drawRose();
   renderHistory();
 </script>
+<!-- HANNAH'S RULE -->
+<div class="card" style="margin-top:4px">
+  <div class="card-label">Hannah's heuristic (based on 2024/25 Strava data)</div>
+
+  <div style="display:flex;gap:16px;align-items:flex-start">
+    <!-- Compass rose drawn by inline script below -->
+    <svg id="rosesvg" viewBox="0 0 160 160" width="150" height="150" style="flex-shrink:0"></svg>
+
+    <!-- Legend text -->
+    <div style="flex:1;font-size:12px;line-height:1.6;color:var(--text)">
+      <div style="margin-bottom:10px">
+        <span style="display:inline-block;width:10px;height:10px;background:#b84c1a;border-radius:2px;margin-right:6px;vertical-align:middle"></span>
+        <strong style="color:var(--text)">W → N</strong><br>
+        <span style="color:var(--muted);font-size:11px">
+          &lt;5 mph <span style="color:var(--wind-low)">●</span> row<br>
+          ≥5 mph <span style="color:var(--wind-high)">●</span> no
+        </span>
+      </div>
+      <div style="margin-bottom:10px">
+        <span style="display:inline-block;width:10px;height:10px;background:#b8960c;border-radius:2px;margin-right:6px;vertical-align:middle"></span>
+        <strong style="color:var(--text)">NNE → ENE</strong><br>
+        <span style="color:var(--muted);font-size:11px">
+          &lt;5 <span style="color:var(--wind-low)">●</span> row · 5–10 <span style="color:var(--wind-med)">●</span> caution<br>
+          ≥10 mph <span style="color:var(--wind-high)">●</span> no
+        </span>
+      </div>
+      <div>
+        <span style="display:inline-block;width:10px;height:10px;background:#4e7d2e;border-radius:2px;margin-right:6px;vertical-align:middle"></span>
+        <strong style="color:var(--text)">E → WSW</strong><br>
+        <span style="color:var(--muted);font-size:11px">
+          &lt;10 <span style="color:var(--wind-low)">●</span> row · 10–15 <span style="color:var(--wind-med)">●</span> caution<br>
+          ≥15 mph <span style="color:var(--wind-high)">●</span> no
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <p style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.5;border-top:1px solid var(--border);padding-top:10px">
+    Northerly and westerly winds funnel down the long axis of Lake Mendota and build fetch quickly — even moderate speeds become dangerous. Southern and westerly winds cross the short axis or are sheltered by the shore. Northeast winds wrap around the point and are tricky.
+  </p>
+</div>
+
 </body>
 </html>

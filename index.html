@@ -368,7 +368,7 @@
   }
 
   // ── Helpers ───────────────────────────────────────────────
-  // Hannah's Heuristic: rowability depends on wind direction
+  // Hannah's Rule: rowability depends on wind direction
   // Zone 1 — W through N (258.75°→11.25°): <5 green, ≥5 red
   // Zone 3 — NNE through ENE (11.25°→78.75°): <5 green, 5–10 amber, ≥10 red
   // Zone 2 — E through WSW (78.75°→258.75°): <10 green, 10–15 amber, ≥15 red
@@ -599,99 +599,136 @@
     });
   }
 
-  // ── Compass Rose (Hannah's Rule) ──────────────────────────
+  // ── Compass Rose: polar speed×direction rowability chart ──
   function drawRose() {
     const svg = document.getElementById('rosesvg');
-    const cx = 80, cy = 80, r = 62, ri = 18;
-    const ns = 'http://www.w3.org/2000/svg';
+    svg.innerHTML = '';
+    const ns  = 'http://www.w3.org/2000/svg';
+    const cx  = 100, cy = 100;
 
-    function polar(angleDeg, radius) {
-      // SVG: 0° = top (North), clockwise
-      const rad = (angleDeg - 90) * Math.PI / 180;
-      return [cx + radius * Math.cos(rad), cy + radius * Math.sin(rad)];
-    }
-
-    function arcPath(startDeg, endDeg, outerR, innerR) {
-      const [x1, y1] = polar(startDeg, outerR);
-      const [x2, y2] = polar(endDeg,   outerR);
-      const [x3, y3] = polar(endDeg,   innerR);
-      const [x4, y4] = polar(startDeg, innerR);
-      const sweep = ((endDeg - startDeg) + 360) % 360;
-      const large = sweep > 180 ? 1 : 0;
-      return `M${x1},${y1} A${outerR},${outerR} 0 ${large},1 ${x2},${y2} L${x3},${y3} A${innerR},${innerR} 0 ${large},0 ${x4},${y4} Z`;
-    }
-
-    const zones = [
-      { start: 258.75, end: 11.25,  color: '#b84c1a', alpha: '33', label: '≥5⚑', midAngle: 315  },
-      { start: 11.25,  end: 78.75,  color: '#b8960c', alpha: '33', label: '≥5⚠', midAngle: 45   },
-      { start: 78.75,  end: 258.75, color: '#4e7d2e', alpha: '33', label: '≥10✓', midAngle: 168 },
+    // 4 concentric speed bands: [label, mid speed used for color, inner r, outer r]
+    const bands = [
+      { label: '0–5',  mid: 2.5,  inner: 14, outer: 40 },
+      { label: '5–10', mid: 7.5,  inner: 40, outer: 62 },
+      { label: '10–15',mid: 12.5, inner: 62, outer: 78 },
+      { label: '15+',  mid: 17.5, inner: 78, outer: 91 },
     ];
 
-    zones.forEach(z => {
-      const path = document.createElementNS(ns, 'path');
-      path.setAttribute('d', arcPath(z.start, z.end, r, ri));
-      path.setAttribute('fill', z.color + z.alpha);
-      path.setAttribute('stroke', z.color);
-      path.setAttribute('stroke-width', '1.2');
-      svg.appendChild(path);
+    const STEP = 3; // degrees per slice — smooth enough, fast enough
 
-      // Label at midpoint
-      const [lx, ly] = polar(z.midAngle, (r + ri) / 2);
-      const txt = document.createElementNS(ns, 'text');
-      txt.setAttribute('x', lx);
-      txt.setAttribute('y', ly + 3);
-      txt.setAttribute('text-anchor', 'middle');
-      txt.setAttribute('font-family', 'Space Mono, monospace');
-      txt.setAttribute('font-size', '7');
-      txt.setAttribute('fill', z.color);
-      txt.setAttribute('font-weight', '700');
-      txt.textContent = z.label;
-      svg.appendChild(txt);
-    });
+    function polar(deg, r) {
+      const rad = (deg - 90) * Math.PI / 180;
+      return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+    }
 
-    // Outer ring
-    const ring = document.createElementNS(ns, 'circle');
-    ring.setAttribute('cx', cx); ring.setAttribute('cy', cy);
-    ring.setAttribute('r', r);
-    ring.setAttribute('fill', 'none');
-    ring.setAttribute('stroke', 'var(--border)');
-    ring.setAttribute('stroke-width', '1');
-    svg.appendChild(ring);
+    function slicePath(a0, a1, ri, ro) {
+      const [x1,y1] = polar(a0, ro);
+      const [x2,y2] = polar(a1, ro);
+      const [x3,y3] = polar(a1, ri);
+      const [x4,y4] = polar(a0, ri);
+      const lg = (a1 - a0) > 180 ? 1 : 0;
+      return `M${x1},${y1} A${ro},${ro} 0 ${lg},1 ${x2},${y2} `
+           + `L${x3},${y3} A${ri},${ri} 0 ${lg},0 ${x4},${y4} Z`;
+    }
+
+    const fillAlpha  = 'bb';
+    const strokeAlpha = '44';
+    const colors = { green: '#4e7d2e', amber: '#b8960c', red: '#b84c1a' };
+
+    // Draw filled slices
+    for (const band of bands) {
+      for (let deg = 0; deg < 360; deg += STEP) {
+        const status = windStatus(band.mid, deg + STEP / 2);
+        const c = colors[status];
+        const p = document.createElementNS(ns, 'path');
+        p.setAttribute('d', slicePath(deg, deg + STEP, band.inner, band.outer));
+        p.setAttribute('fill',         c + fillAlpha);
+        p.setAttribute('stroke',       c + strokeAlpha);
+        p.setAttribute('stroke-width', '0.3');
+        svg.appendChild(p);
+      }
+    }
+
+    // Ring borders between bands
+    for (const band of bands) {
+      const circle = document.createElementNS(ns, 'circle');
+      circle.setAttribute('cx', cx); circle.setAttribute('cy', cy);
+      circle.setAttribute('r',  band.outer);
+      circle.setAttribute('fill',         'none');
+      circle.setAttribute('stroke',       '#00000022');
+      circle.setAttribute('stroke-width', '0.8');
+      svg.appendChild(circle);
+
+      // Speed label on the right side of each ring
+      const [lx, ly] = polar(95, (band.inner + band.outer) / 2);
+      const lt = document.createElementNS(ns, 'text');
+      lt.setAttribute('x', lx + 2); lt.setAttribute('y', ly + 3);
+      lt.setAttribute('text-anchor', 'start');
+      lt.setAttribute('font-family', 'Space Mono, monospace');
+      lt.setAttribute('font-size',   '5.5');
+      lt.setAttribute('fill',        'var(--text)');
+      lt.setAttribute('opacity',     '0.65');
+      lt.textContent = band.label;
+      svg.appendChild(lt);
+    }
+
+    // Inner hole
+    const hole = document.createElementNS(ns, 'circle');
+    hole.setAttribute('cx', cx); hole.setAttribute('cy', cy);
+    hole.setAttribute('r',  14);
+    hole.setAttribute('fill',   'var(--bg)');
+    hole.setAttribute('stroke', 'var(--border)');
+    hole.setAttribute('stroke-width', '1');
+    svg.appendChild(hole);
+
+    // Cardinal spokes (faint)
+    for (const deg of [0, 90, 180, 270]) {
+      const [x1,y1] = polar(deg, 14);
+      const [x2,y2] = polar(deg, 91);
+      const ln = document.createElementNS(ns, 'line');
+      ln.setAttribute('x1', x1); ln.setAttribute('y1', y1);
+      ln.setAttribute('x2', x2); ln.setAttribute('y2', y2);
+      ln.setAttribute('stroke',       '#00000033');
+      ln.setAttribute('stroke-width', '0.8');
+      svg.appendChild(ln);
+    }
 
     // Cardinal labels
-    [['N',0],['E',90],['S',180],['W',270]].forEach(([lbl, deg]) => {
-      const [x, y] = polar(deg, r + 9);
+    const cardinals = [['N',0],['E',90],['S',180],['W',270]];
+    for (const [lbl, deg] of cardinals) {
+      const [x,y] = polar(deg, 101);
       const t = document.createElementNS(ns, 'text');
-      t.setAttribute('x', x); t.setAttribute('y', y + 3);
+      t.setAttribute('x', x); t.setAttribute('y', y + 3.5);
       t.setAttribute('text-anchor', 'middle');
       t.setAttribute('font-family', 'Space Mono, monospace');
-      t.setAttribute('font-size', '9');
+      t.setAttribute('font-size',   '10');
       t.setAttribute('font-weight', '700');
-      t.setAttribute('fill', 'var(--text)');
+      t.setAttribute('fill',        'var(--text)');
       t.textContent = lbl;
       svg.appendChild(t);
-    });
+    }
 
-    // Center hub
-    const hub = document.createElementNS(ns, 'circle');
-    hub.setAttribute('cx', cx); hub.setAttribute('cy', cy);
-    hub.setAttribute('r', 4);
-    hub.setAttribute('fill', 'var(--surface2)');
-    hub.setAttribute('stroke', 'var(--border)');
-    hub.setAttribute('stroke-width', '1.2');
-    svg.appendChild(hub);
+    // Center label
+    const ct = document.createElementNS(ns, 'text');
+    ct.setAttribute('x', cx); ct.setAttribute('y', cy + 3);
+    ct.setAttribute('text-anchor', 'middle');
+    ct.setAttribute('font-family', 'Space Mono, monospace');
+    ct.setAttribute('font-size',   '5');
+    ct.setAttribute('fill',        'var(--muted)');
+    ct.textContent = 'mph';
+    svg.appendChild(ct);
   }
 
-  drawRose();
   renderHistory();
 </script>
+
 <!-- HANNAH'S RULE -->
 <div class="card" style="margin-top:4px">
-  <div class="card-label">Hannah's heuristic (based on 2024/25 Strava data)</div>
+  <div class="card-label">Hannah's heuristic (based on 2024-25 1x Strava data)</div>
 
   <div style="display:flex;gap:16px;align-items:flex-start">
     <!-- Compass rose drawn by inline script below -->
-    <svg id="rosesvg" viewBox="0 0 160 160" width="150" height="150" style="flex-shrink:0"></svg>
+    <svg id="rosesvg" viewBox="0 0 200 200" width="170" height="170" style="flex-shrink:0"></svg>
 
     <!-- Legend text -->
     <div style="flex:1;font-size:12px;line-height:1.6;color:var(--text)">
@@ -727,5 +764,6 @@
   </p>
 </div>
 
+<script>drawRose();</script>
 </body>
 </html>

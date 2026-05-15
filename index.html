@@ -37,6 +37,10 @@
     margin: 0 auto;
   }
 
+  /* ── Utilities ─────────────────────────────────────────── */
+  .hidden { display: none; }
+
+  /* ── Layout ────────────────────────────────────────────── */
   header {
     display: flex;
     justify-content: space-between;
@@ -61,6 +65,7 @@
     margin-top: 3px;
   }
 
+  /* ── Buttons ───────────────────────────────────────────── */
   .fetch-btn {
     background: var(--accent);
     color: #fff;
@@ -79,6 +84,31 @@
   .fetch-btn:hover { opacity: 0.85; }
   .fetch-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+  .clear-btn {
+    font-size: 10px;
+    color: var(--muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    padding: 4px;
+    text-decoration: underline;
+  }
+
+  .dl-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .dl-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Status & Tabs ─────────────────────────────────────── */
   .status-bar {
     font-size: 11px;
     color: var(--muted);
@@ -87,6 +117,32 @@
     min-height: 16px;
   }
 
+  .section-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+
+  .tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* ── Cards ─────────────────────────────────────────────── */
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -105,6 +161,63 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+
+  .card-label-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 20px;
+  }
+
+  /* ── Current conditions ─────────────────────────────────── */
+  .wind-big {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+
+  .compass {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+  }
+
+  .wind-info { flex: 1; }
+
+  .wind-speed-big {
+    font-family: 'Space Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .wind-speed-unit {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .wind-dir-text {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  .wind-gust {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
   }
 
   .current-grid {
@@ -141,44 +254,15 @@
     margin-top: 2px;
   }
 
-  .wind-big {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    background: var(--surface2);
-    border-radius: 8px;
-    padding: 14px;
-    margin-bottom: 12px;
-  }
-
-  .compass {
-    width: 60px;
-    height: 60px;
-    flex-shrink: 0;
-  }
-
-  .wind-info { flex: 1; }
-
-  .wind-speed-big {
-    font-family: 'Space Mono', monospace;
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  .wind-dir-text {
-    font-size: 13px;
-    color: var(--muted);
-    margin-top: 3px;
-  }
-
-  .wind-gust {
-    font-family: 'Space Mono', monospace;
+  .conditions-row {
+    margin-top: 10px;
     font-size: 12px;
     color: var(--muted);
-    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
   }
 
+  /* ── Hourly scroll ─────────────────────────────────────── */
   .hourly-scroll {
     display: flex;
     gap: 8px;
@@ -198,11 +282,19 @@
     text-align: center;
   }
 
+  .hour-cell--past { opacity: 0.4; }
+
   .hour-time {
     font-size: 10px;
     color: var(--muted);
     font-family: 'Space Mono', monospace;
     margin-bottom: 6px;
+  }
+
+  .hour-arrow {
+    margin: 0 auto 5px;
+    display: flex;
+    justify-content: center;
   }
 
   .hour-speed {
@@ -211,29 +303,54 @@
     font-weight: 700;
   }
 
+  .hour-gust {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--wind-high);
+  }
+
+  .hour-gust--hidden {
+    font-size: 10px;
+    color: transparent;
+  }
+
   .hour-temp {
     font-size: 10px;
     color: var(--muted);
     margin-top: 3px;
   }
 
+  /* ── History ───────────────────────────────────────────── */
   .history-item {
     background: var(--surface2);
     border-radius: 8px;
     padding: 10px 12px;
     margin-bottom: 8px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
     border: 1px solid transparent;
     transition: border 0.15s;
   }
   .history-item:hover { border-color: var(--border); }
 
+  .history-item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
   .history-time {
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     color: var(--muted);
+  }
+
+  .history-conditions {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
   }
 
   .history-vals {
@@ -243,67 +360,9 @@
     text-align: right;
   }
 
-  .empty-state {
-    text-align: center;
+  .history-rh {
     color: var(--muted);
-    font-size: 13px;
-    padding: 20px;
-  }
-
-  .section-tabs {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 12px;
-  }
-
-  .tab {
-    padding: 6px 14px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    transition: all 0.15s;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .tab.active {
-    background: var(--accent);
-    color: #fff;
-    border-color: var(--accent);
-    font-weight: 700;
-  }
-
-  .clear-btn {
     font-size: 10px;
-    color: var(--muted);
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-family: 'Space Mono', monospace;
-    padding: 4px;
-    text-decoration: underline;
-  }
-
-  .conditions-row {
-    margin-top: 10px;
-    font-size: 12px;
-    color: var(--muted);
-    padding-top: 8px;
-    border-top: 1px solid var(--border);
-  }
-
-  .history-item {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .history-item-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
   }
 
   .row-btns {
@@ -327,22 +386,134 @@
     -webkit-tap-highlight-color: transparent;
   }
   .row-btn:hover { border-color: var(--accent); color: var(--text); }
-  .row-btn.active-yes  { background: #4e7d2e22; border-color: #4e7d2e; color: #4e7d2e; font-weight: 700; }
-  .row-btn.active-no   { background: #b84c1a22; border-color: #b84c1a; color: #b84c1a; font-weight: 700; }
-  .row-btn.active-na   { background: var(--surface2); border-color: var(--border); color: var(--text); font-weight: 700; }
+  .row-btn.active-yes { background: #4e7d2e22; border-color: #4e7d2e; color: #4e7d2e; font-weight: 700; }
+  .row-btn.active-no  { background: #b84c1a22; border-color: #b84c1a; color: #b84c1a; font-weight: 700; }
+  .row-btn.active-na  { background: var(--surface2); border-color: var(--border); color: var(--text); font-weight: 700; }
 
-  .dl-btn {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    padding: 5px 10px;
+  /* ── Hannah's Heuristic card ───────────────────────────── */
+  .heuristic-layout {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .heuristic-legend {
+    flex: 1;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .zone-entry {
+    margin-bottom: 10px;
+  }
+
+  .zone-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .zone-dot--red   { background: #b84c1a; }
+  .zone-dot--amber { background: #b8960c; }
+  .zone-dot--green { background: #4e7d2e; }
+
+  .zone-detail {
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  .heuristic-note {
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+
+  /* ── Forecast ──────────────────────────────────────────── */
+  .forecast-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+
+  .forecast-item--past { opacity: 0.45; }
+
+  .forecast-day {
+    width: 44px;
+    flex-shrink: 0;
+  }
+
+  .forecast-day-name {
     font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .forecast-date {
     font-size: 10px;
     color: var(--muted);
-    cursor: pointer;
-    transition: all 0.15s;
+    margin-top: 2px;
   }
-  .dl-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .forecast-wind {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .forecast-speed {
+    font-family: 'Space Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .forecast-speed-unit {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .forecast-gust {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--wind-high);
+    margin-top: 2px;
+  }
+
+  .forecast-meta {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .forecast-temp {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .forecast-dir {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .forecast-conditions {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
 </style>
 </head>
 <body>
@@ -360,6 +531,7 @@
 <div class="section-tabs">
   <button class="tab active" onclick="showTab('now')">Now</button>
   <button class="tab" onclick="showTab('hourly')">Hourly</button>
+  <button class="tab" onclick="showTab('forecast')">Forecast</button>
   <button class="tab" onclick="showTab('history')">History</button>
 </div>
 
@@ -368,12 +540,12 @@
   <div class="card">
     <div class="card-label">Current Conditions</div>
     <div class="empty-state" id="currentEmpty">No data yet — hit FETCH</div>
-    <div id="currentData" style="display:none"></div>
+    <div id="currentData" class="hidden"></div>
   </div>
 </div>
 
 <!-- HOURLY TAB -->
-<div id="tab-hourly" style="display:none">
+<div id="tab-hourly" class="hidden">
   <div class="card">
     <div class="card-label">Wind by Hour (mph)</div>
     <div class="empty-state" id="hourlyEmpty">No data yet — hit FETCH</div>
@@ -381,12 +553,21 @@
   </div>
 </div>
 
+<!-- FORECAST TAB -->
+<div id="tab-forecast" class="hidden">
+  <div class="card">
+    <div class="card-label">7 AM Conditions — Next 5 Days</div>
+    <div class="empty-state" id="forecastEmpty">No data yet — hit FETCH</div>
+    <div id="forecastList"></div>
+  </div>
+</div>
+
 <!-- HISTORY TAB -->
-<div id="tab-history" style="display:none">
+<div id="tab-history" class="hidden">
   <div class="card">
     <div class="card-label">
       <span>Saved Snapshots</span>
-      <div style="display:flex;gap:6px;align-items:center">
+      <div class="card-label-actions">
         <button class="dl-btn" onclick="downloadCSV()">↓ CSV</button>
         <button class="clear-btn" onclick="clearHistory()">clear all</button>
       </div>
@@ -395,10 +576,59 @@
   </div>
 </div>
 
+<!-- HANNAH'S HEURISTIC -->
+<div class="card" style="margin-top:4px">
+  <div class="card-label">Hannah's heuristic</div>
+
+  <div class="heuristic-layout">
+    <svg id="rosesvg" viewBox="0 0 200 200" width="170" height="170" style="flex-shrink:0"></svg>
+
+    <div class="heuristic-legend">
+      <div class="zone-entry">
+        <span class="zone-dot zone-dot--red"></span>
+        <strong>W → N</strong><br>
+        <span class="zone-detail">
+          &lt;5 mph <span style="color:var(--wind-low)">●</span> row<br>
+          ≥5 mph <span style="color:var(--wind-high)">●</span> no
+        </span>
+      </div>
+      <div class="zone-entry">
+        <span class="zone-dot zone-dot--amber"></span>
+        <strong>NNE → ENE</strong><br>
+        <span class="zone-detail">
+          &lt;5 <span style="color:var(--wind-low)">●</span> row · 5–10 <span style="color:var(--wind-med)">●</span> caution<br>
+          ≥10 mph <span style="color:var(--wind-high)">●</span> no
+        </span>
+      </div>
+      <div class="zone-entry">
+        <span class="zone-dot zone-dot--green"></span>
+        <strong>E → WSW</strong><br>
+        <span class="zone-detail">
+          &lt;10 <span style="color:var(--wind-low)">●</span> row · 10–15 <span style="color:var(--wind-med)">●</span> caution<br>
+          ≥15 mph <span style="color:var(--wind-high)">●</span> no
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <p class="heuristic-note">
+   This website is to aid, not replace, your own judgment!! Note this heuristic is based on wind speed and direction only, and does not include air temp, water temp, visibility, or precipitation, which must also be considered for rowing safely.
+   <br><br>
+   Heuristic is based on roughly 300 data points from 2024/25 Mendota rowing seasons from Hannah's Strava (<a href="https://raw.githubusercontent.com/HWaymentSteele/mendota-weather/main/2024_2025_compass_v2_manual_edit.png"/>visualization</a>), mapped to the same weather source as what is displayed here.
+   <br><br>
+   Northerly and westerly winds funnel down the long axis of Lake Mendota and build unrowable waves at much lower wind speeds. Southern and westerly winds cross the short axis or are sheltered by the shore.
+   <br><br>
+   You can annotate data pulls yourself from this website (rowable? not rowable?) and download as csv under History tab.
+   <br><br>
+   Data is pulled from <a href="https://www.visualcrossing.com/">Visual Crossing</a> for James Madison Park latitude and longitude. This dashboard gets 1,000 data calls free each day, thanks for not abusing!
+  </p>
+</div>
+
 <script>
   const API_KEY = '5H65KJKDWTKJLQ7UU5VUBFDEL';
   const LAT = 43.0814, LON = -89.3829;
   const BASE = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${LAT},${LON}/today?key=${API_KEY}`;
+  const BASE_FORECAST = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${LAT},${LON}/next7days?key=${API_KEY}`;
   const STORAGE_KEY = 'wx_snapshots';
 
   // ── Storage ──────────────────────────────────────────────
@@ -442,11 +672,6 @@
   function windColor(spd, dir) {
     const s = windStatus(spd, dir === undefined ? 180 : dir);
     return s === 'green' ? 'var(--wind-low)' : s === 'amber' ? 'var(--wind-med)' : 'var(--wind-high)';
-  }
-
-  function windClass(spd, dir) {
-    const s = windStatus(spd, dir === undefined ? 180 : dir);
-    return s === 'green' ? 'wind-color-low' : s === 'amber' ? 'wind-color-med' : 'wind-color-high';
   }
 
   function dirLabel(deg) {
@@ -499,17 +724,20 @@
     status.textContent = 'Fetching…';
 
     try {
-      const [curRes, hrRes] = await Promise.all([
+      const [curRes, hrRes, fcRes] = await Promise.all([
         fetch(`${BASE}&include=current`),
-        fetch(`${BASE}&include=hours`)
+        fetch(`${BASE}&include=hours`),
+        fetch(`${BASE_FORECAST}&include=hours`)
       ]);
 
-      if (!curRes.ok || !hrRes.ok) throw new Error(`API error ${curRes.status}`);
+      if (!curRes.ok || !hrRes.ok || !fcRes.ok) throw new Error(`API error ${curRes.status}`);
 
-      const [curJson, hrJson] = await Promise.all([curRes.json(), hrRes.json()]);
+      const [curJson, hrJson, fcJson] = await Promise.all([curRes.json(), hrRes.json(), fcRes.json()]);
 
-      window._currentData = curJson.currentConditions;
-      window._hourlyData  = hrJson.days?.[0]?.hours || [];
+      window._currentData  = curJson.currentConditions;
+      window._hourlyData   = hrJson.days?.[0]?.hours || [];
+      // Skip today (index 0), take next 5 days
+      window._forecastData = (fcJson.days || []).slice(1, 6);
 
       const now = new Date().toLocaleString('en-US', {
         month: 'short', day: 'numeric',
@@ -519,6 +747,7 @@
 
       renderCurrent();
       renderHourly();
+      renderForecast();
 
       saveSnapshot({
         ts:         new Date().toISOString(),
@@ -545,14 +774,14 @@
     const gust = Math.round(d.windgust  || 0);
     const dir  = Math.round(d.winddir   || 0);
 
-    document.getElementById('currentEmpty').style.display = 'none';
+    document.getElementById('currentEmpty').classList.add('hidden');
     const el = document.getElementById('currentData');
-    el.style.display = 'block';
+    el.classList.remove('hidden');
     el.innerHTML = `
       <div class="wind-big">
         ${compassSVG(dir)}
         <div class="wind-info">
-          <div class="wind-speed-big" style="color:${windColor(spd,dir)}">${spd} <span style="font-size:14px;color:var(--muted)">mph</span></div>
+          <div class="wind-speed-big" style="color:${windColor(spd,dir)}">${spd} <span class="wind-speed-unit">mph</span></div>
           <div class="wind-dir-text">From ${dirLabel(dir)} (${dir}°)</div>
           ${gust > spd ? `<div class="wind-gust">Gusting to ${gust} mph</div>` : ''}
         </div>
@@ -588,7 +817,7 @@
     const hours = window._hourlyData;
     if (!hours || !hours.length) return;
 
-    document.getElementById('hourlyEmpty').style.display = 'none';
+    document.getElementById('hourlyEmpty').classList.add('hidden');
     const el = document.getElementById('hourlyData');
     const currentHour = new Date().getHours();
 
@@ -597,11 +826,12 @@
       const spd = Math.round(h.windspeed || 0);
       const dir = h.winddir || 0;
       const isPast = hr < currentHour;
-      return `<div class="hour-cell" style="${isPast ? 'opacity:0.4' : ''}">
+      const gustVal = h.windgust && Math.round(h.windgust) > spd ? Math.round(h.windgust) : null;
+      return `<div class="hour-cell${isPast ? ' hour-cell--past' : ''}">
         <div class="hour-time">${fmt12(h.datetime)}</div>
-        <div style="margin:0 auto 5px;display:flex;justify-content:center">${dirArrowSVG(dir)}</div>
+        <div class="hour-arrow">${dirArrowSVG(dir)}</div>
         <div class="hour-speed" style="color:${windColor(spd,dir)}">${spd}</div>
-        ${h.windgust && Math.round(h.windgust) > spd ? `<div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--wind-high)">G${Math.round(h.windgust)}</div>` : '<div style="font-size:10px;color:transparent">G0</div>'}
+        <div class="${gustVal ? 'hour-gust' : 'hour-gust--hidden'}">${gustVal ? `G${gustVal}` : 'G0'}</div>
         <div class="hour-temp">${Math.round(h.temp || 0)}°</div>
       </div>`;
     }).join('');
@@ -612,6 +842,49 @@
       const target = cells[Math.max(0, currentHour - 1)];
       if (target) target.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
     }, 150);
+  }
+
+  // ── Render: Forecast ──────────────────────────────────────
+  function renderForecast() {
+    const days = window._forecastData;
+    if (!days || !days.length) return;
+
+    document.getElementById('forecastEmpty').classList.add('hidden');
+    const el = document.getElementById('forecastList');
+
+    el.innerHTML = days.map(day => {
+      const hour7 = day.hours?.find(h => h.datetime.startsWith('07:'));
+      if (!hour7) return '';
+
+      // Visual Crossing date strings are local YYYY-MM-DD; parse without timezone shift
+      const [y, m, d] = day.datetime.split('-').map(Number);
+      const date = new Date(y, m - 1, d);
+      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+      const dateFmt = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+      const spd  = Math.round(hour7.windspeed || 0);
+      const gust = Math.round(hour7.windgust  || 0);
+      const dir  = hour7.winddir || 0;
+
+      return `<div class="forecast-item">
+        <div class="forecast-day">
+          <div class="forecast-day-name">${dayName}</div>
+          <div class="forecast-date">${dateFmt}</div>
+        </div>
+        <div class="forecast-wind">
+          ${dirArrowSVG(dir)}
+          <div>
+            <div class="forecast-speed" style="color:${windColor(spd,dir)}">${spd} <span class="forecast-speed-unit">mph</span></div>
+            ${gust > spd ? `<div class="forecast-gust">G${gust}</div>` : ''}
+          </div>
+        </div>
+        <div class="forecast-meta">
+          <div class="forecast-temp">${Math.round(hour7.temp || 0)}°F</div>
+          <div class="forecast-dir">From ${dirLabel(dir)}</div>
+          <div class="forecast-conditions">${hour7.conditions || ''}</div>
+        </div>
+      </div>`;
+    }).join('');
   }
 
   // ── Render: History ───────────────────────────────────────
@@ -634,11 +907,11 @@
         <div class="history-item-top">
           <div>
             <div class="history-time">${label}</div>
-            <div style="font-size:12px;color:var(--muted);margin-top:2px">${s.conditions || ''}</div>
+            <div class="history-conditions">${s.conditions || ''}</div>
           </div>
           <div class="history-vals">
             <div style="color:${windColor(spd, s.winddir || 0)}">${spd} mph ${dirLabel(s.winddir || 0)}</div>
-            <div style="color:var(--muted);font-size:10px">${Math.round(s.temp || 0)}°F · ${Math.round(s.humidity || 0)}% RH</div>
+            <div class="history-rh">${Math.round(s.temp || 0)}°F · ${Math.round(s.humidity || 0)}% RH</div>
           </div>
         </div>
         <div class="row-btns">
@@ -653,7 +926,6 @@
   function setRowable(index, value) {
     const history = loadHistory();
     if (!history[index]) return;
-    // Toggle off if already selected
     history[index].rowable = history[index].rowable === value ? null : value;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
     renderHistory();
@@ -686,11 +958,11 @@
 
   // ── Tabs ──────────────────────────────────────────────────
   function showTab(name) {
-    ['now', 'hourly', 'history'].forEach(t => {
-      document.getElementById(`tab-${t}`).style.display = t === name ? '' : 'none';
+    ['now', 'hourly', 'forecast', 'history'].forEach(t => {
+      document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== name);
     });
     document.querySelectorAll('.tab').forEach((btn, i) => {
-      btn.classList.toggle('active', ['now', 'hourly', 'history'][i] === name);
+      btn.classList.toggle('active', ['now', 'hourly', 'forecast', 'history'][i] === name);
     });
   }
 
@@ -703,10 +975,10 @@
 
     // 4 concentric speed bands: [label, mid speed used for color, inner r, outer r]
     const bands = [
-      { label: '0–5',  mid: 2.5,  inner: 14, outer: 40 },
-      { label: '5–10', mid: 7.5,  inner: 40, outer: 62 },
-      { label: '10–15',mid: 12.5, inner: 62, outer: 78 },
-      { label: '15+',  mid: 17.5, inner: 78, outer: 91 },
+      { label: '0–5',   mid: 2.5,  inner: 14, outer: 40 },
+      { label: '5–10',  mid: 7.5,  inner: 40, outer: 62 },
+      { label: '10–15', mid: 12.5, inner: 62, outer: 78 },
+      { label: '15+',   mid: 17.5, inner: 78, outer: 91 },
     ];
 
     const STEP = 3; // degrees per slice — smooth enough, fast enough
@@ -726,7 +998,7 @@
            + `L${x3},${y3} A${ri},${ri} 0 ${lg},0 ${x4},${y4} Z`;
     }
 
-    const fillAlpha  = 'bb';
+    const fillAlpha   = 'bb';
     const strokeAlpha = '44';
     const colors = { green: '#4e7d2e', amber: '#b8960c', red: '#b84c1a' };
 
@@ -815,62 +1087,7 @@
   }
 
   renderHistory();
+  drawRose();
 </script>
-
-<!-- HANNAH'S RULE -->
-<div class="card" style="margin-top:4px">
-  <div class="card-label">Hannah's heuristic</div>
-
-  <div style="display:flex;gap:16px;align-items:flex-start">
-    <!-- Compass rose drawn by inline script below -->
-    <svg id="rosesvg" viewBox="0 0 200 200" width="170" height="170" style="flex-shrink:0"></svg>
-
-    <!-- Legend text -->
-    <div style="flex:1;font-size:12px;line-height:1.6;color:var(--text)">
-      <div style="margin-bottom:10px">
-        <span style="display:inline-block;width:10px;height:10px;background:#b84c1a;border-radius:2px;margin-right:6px;vertical-align:middle"></span>
-        <strong style="color:var(--text)">W → N</strong><br>
-        <span style="color:var(--muted);font-size:11px">
-          &lt;5 mph <span style="color:var(--wind-low)">●</span> row<br>
-          ≥5 mph <span style="color:var(--wind-high)">●</span> no
-        </span>
-      </div>
-      <div style="margin-bottom:10px">
-        <span style="display:inline-block;width:10px;height:10px;background:#b8960c;border-radius:2px;margin-right:6px;vertical-align:middle"></span>
-        <strong style="color:var(--text)">NNE → ENE</strong><br>
-        <span style="color:var(--muted);font-size:11px">
-          &lt;5 <span style="color:var(--wind-low)">●</span> row · 5–10 <span style="color:var(--wind-med)">●</span> caution<br>
-          ≥10 mph <span style="color:var(--wind-high)">●</span> no
-        </span>
-      </div>
-      <div>
-        <span style="display:inline-block;width:10px;height:10px;background:#4e7d2e;border-radius:2px;margin-right:6px;vertical-align:middle"></span>
-        <strong style="color:var(--text)">E → WSW</strong><br>
-        <span style="color:var(--muted);font-size:11px">
-          &lt;10 <span style="color:var(--wind-low)">●</span> row · 10–15 <span style="color:var(--wind-med)">●</span> caution<br>
-          ≥15 mph <span style="color:var(--wind-high)">●</span> no
-        </span>
-      </div>
-    </div>
-  </div>
-
-  <p style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.5;border-top:1px solid var(--border);padding-top:10px">
-   This website is to aid, not replace, your own judgment!! Note this heuristic is based on wind speed and direction only, and does not include air temp, water temp, visibility, or precipitation, which must also be considered for rowing safely.
-   <br>
-   <br>
-   Heuristic is based on roughly 300 data points from 2024/25 Mendota rowing seasons from Hannah's Strava (<a href="https://raw.githubusercontent.com/HWaymentSteele/mendota-weather/main/2024_2025_compass_v2_manual_edit.png"/>visualization</a>), mapped to the same weather source as what is displayed here.
-   <br>
-   <br>
-   Northerly and westerly winds funnel down the long axis of Lake Mendota and build unrowable waves at much lower wind speeds. Southern and westerly winds cross the short axis or are sheltered by the shore.
-   <br>
-   <br>
-   You can annotate data pulls yourself from this website (rowable? not rowable?) and download as csv under History tab.
-   <br>
-   <br>
-   Data is pulled from <a href="https://www.visualcrossing.com/">Visual Crossing</a> for James Madison Park latitude and longitude. This dashboard gets 1,000 data calls free each day, thanks for not abusing!
-  </p>
-</div>
-
-<script>drawRose();</script>
 </body>
 </html>
